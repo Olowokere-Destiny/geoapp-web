@@ -1,11 +1,18 @@
 import { useState } from "react";
 import "./App.css";
 import Login from "./components/Login";
+import { Route, Routes } from "react-router-dom";
+import Home from "./components/Home";
 
 function App() {
   const [count, setCount] = useState(0);
 
-  return <Login />;
+  return (
+    <Routes>
+      <Route path="login" element={<Login />} />
+      <Route path="/" element={<Home />} />
+    </Routes>
+  );
 }
 
 export default App;
