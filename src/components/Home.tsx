@@ -119,7 +119,7 @@ const Home = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Search IP Address
             </label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-col md:flex-row items-center md:items-start">
               <input
                 type="text"
                 value={searchIp}
@@ -130,20 +130,22 @@ const Home = () => {
                 placeholder="Enter IP address"
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
               />
-              <button
-                onClick={() => handleSearch(searchIp)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition"
-              >
-                Search
-              </button>
-              {searchIp && (
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={handleClear}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+                  onClick={() => handleSearch(searchIp)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition"
                 >
-                  Clear
+                  Search
                 </button>
-              )}
+                {searchIp && (
+                  <button
+                    onClick={handleClear}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
             </div>
             {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
           </div>
