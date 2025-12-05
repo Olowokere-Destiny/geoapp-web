@@ -4,6 +4,7 @@ import { type GeoData } from "../utils/types";
 import { getCurrentIp } from "../utils/getCurrentIp";
 import { searchIpAdress } from "../utils/searchIpAdress";
 import SearchHistory from "./SearchHistory";
+import Map from "./Map";
 
 const Home = () => {
   const [searchIp, setSearchIp] = useState("");
@@ -14,13 +15,12 @@ const Home = () => {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [selectedIps, setSelectedIps] = useState<string[]>([]);
 
-  
   // Save history to localStorage
   const saveHistory = (history: string[]) => {
     localStorage.setItem("geo_app_ips", JSON.stringify(history));
     setSearchHistory(history);
   };
-  
+
   const fetchGeo = async () => {
     try {
       setIsLoading(true);
@@ -32,44 +32,43 @@ const Home = () => {
       setIsLoading(false);
     }
   };
-  
-  const handleSearch = async () => {
-    if (!searchIp.trim()) {
+
+  const handleSearch = async (ip: string = searchIp) => {
+    if (!ip.trim()) {
       setError("Please enter an IP address");
       return;
     }
-    
-    if (!validateIp(searchIp)) {
+    if (!validateIp(ip)) {
       setError("Please enter a valid IP address");
       return;
     }
-    
+
     setError("");
     setIsSearched(true);
     setIsLoading(true);
-    
-    const geoData = await searchIpAdress(searchIp);
+
+    const geoData = await searchIpAdress(ip);
     setCurrentGeoData(geoData);
     setIsLoading(false);
-    
+
     // Add to history if not already present
-    if (!searchHistory.includes(searchIp)) {
-      const newHistory = [searchIp, ...searchHistory];
+    if (!searchHistory.includes(ip)) {
+      const newHistory = [ip, ...searchHistory];
       saveHistory(newHistory);
     }
   };
-  
+
   const handleClear = () => {
     setSearchIp("");
     setError("");
     fetchGeo();
     setIsSearched(false);
   };
-  
+
   const handleHistoryClick = (ip: string) => {
     setSearchIp(ip);
     setError("");
-    handleSearch();
+    handleSearch(ip);
   };
 
   const handleCheckboxChange = (ip: string) => {
@@ -80,16 +79,15 @@ const Home = () => {
       return [...prev, ip];
     });
   };
-  
+
   const handleDeleteSelected = () => {
     const newHistory = searchHistory.filter((ip) => !selectedIps.includes(ip));
     saveHistory(newHistory);
     setSearchHistory(newHistory);
     setSelectedIps([]);
   };
-  
-  
-  // Get user geo data and history once on the page
+
+  // Get user geo data and history once on the page load
   useEffect(() => {
     const stored = localStorage.getItem("geo_app_ips");
     if (stored) {
@@ -103,7 +101,9 @@ const Home = () => {
     }
     fetchGeo();
   }, []);
-  
+
+  // console.log(searchIp);
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-6xl mx-auto">
@@ -131,7 +131,7 @@ const Home = () => {
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
               />
               <button
-                onClick={handleSearch}
+                onClick={() => handleSearch(searchIp)}
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition"
               >
                 Search
@@ -206,6 +206,10 @@ const Home = () => {
           onHistoryClick={handleHistoryClick}
           onDeleteSelected={handleDeleteSelected}
         />
+
+        {currentGeoData && currentGeoData.loc && (
+          <Map loc={currentGeoData.loc} city={currentGeoData.city} />
+        )}
       </div>
     </div>
   );

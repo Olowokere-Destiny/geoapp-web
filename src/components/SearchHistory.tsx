@@ -1,5 +1,5 @@
 import React from "react";
-import { SearchHistoryProps } from "../utils/types";
+import { type SearchHistoryProps } from "../utils/types";
 
 const SearchHistory = ({
   searchHistory,
