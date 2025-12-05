@@ -14,26 +14,13 @@ const Home = () => {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [selectedIps, setSelectedIps] = useState<string[]>([]);
 
-  // Load history from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem("geo_app_ips");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setSearchHistory(Array.isArray(parsed) ? parsed : []);
-      } catch (err) {
-        console.error("Failed to parse history:", err);
-        setSearchHistory([]);
-      }
-    }
-  }, []);
-
+  
   // Save history to localStorage
   const saveHistory = (history: string[]) => {
     localStorage.setItem("geo_app_ips", JSON.stringify(history));
     setSearchHistory(history);
   };
-
+  
   const fetchGeo = async () => {
     try {
       setIsLoading(true);
@@ -45,67 +32,77 @@ const Home = () => {
       setIsLoading(false);
     }
   };
-
+  
   const handleSearch = async () => {
     if (!searchIp.trim()) {
       setError("Please enter an IP address");
       return;
     }
-
+    
     if (!validateIp(searchIp)) {
       setError("Please enter a valid IP address");
       return;
     }
-
+    
     setError("");
     setIsSearched(true);
     setIsLoading(true);
-
+    
     const geoData = await searchIpAdress(searchIp);
     setCurrentGeoData(geoData);
     setIsLoading(false);
-
+    
     // Add to history if not already present
     if (!searchHistory.includes(searchIp)) {
       const newHistory = [searchIp, ...searchHistory];
       saveHistory(newHistory);
     }
   };
-
+  
   const handleClear = () => {
     setSearchIp("");
     setError("");
     fetchGeo();
     setIsSearched(false);
   };
-
+  
   const handleHistoryClick = (ip: string) => {
     setSearchIp(ip);
     setError("");
   };
 
-const handleCheckboxChange = (ip: string) => {
-  setSelectedIps((prev) => {
-    if (prev.includes(ip)) {
-      return prev.filter((item) => item !== ip);
-    }
-    return [...prev, ip];
-  });
-};
-
-const handleDeleteSelected = () => {
-  const newHistory = searchHistory.filter((ip) => !selectedIps.includes(ip));
-  saveHistory(newHistory);
-  setSearchHistory(newHistory);
-  setSelectedIps([]);
-};
-
-
-  // Get user geo data once on the page
+  const handleCheckboxChange = (ip: string) => {
+    setSelectedIps((prev) => {
+      if (prev.includes(ip)) {
+        return prev.filter((item) => item !== ip);
+      }
+      return [...prev, ip];
+    });
+  };
+  
+  const handleDeleteSelected = () => {
+    const newHistory = searchHistory.filter((ip) => !selectedIps.includes(ip));
+    saveHistory(newHistory);
+    setSearchHistory(newHistory);
+    setSelectedIps([]);
+  };
+  
+  
+  // Get user geo data and history once on the page
   useEffect(() => {
+    const stored = localStorage.getItem("geo_app_ips");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setSearchHistory(Array.isArray(parsed) ? parsed : []);
+      } catch (err) {
+        console.error("Failed to parse history:", err);
+        setSearchHistory([]);
+      }
+    }
     fetchGeo();
   }, []);
-
+  
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-6xl mx-auto">
