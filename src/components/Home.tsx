@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { validateIp } from "../utils/validateIp";
 import { type GeoData } from "../utils/types";
 import { getCurrentIp } from "../utils/getCurrentIp";
@@ -7,6 +8,7 @@ import SearchHistory from "./SearchHistory";
 import Map from "./Map";
 
 const Home = () => {
+  const navigate = useNavigate();
   const [searchIp, setSearchIp] = useState("");
   const [error, setError] = useState("");
   const [currentGeoData, setCurrentGeoData] = useState<null | GeoData>(null);
@@ -14,6 +16,11 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [selectedIps, setSelectedIps] = useState<string[]>([]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("geo_app_auth");
+    navigate("/login");
+  };
 
   // Save history to localStorage
   const saveHistory = (history: string[]) => {
@@ -106,15 +113,19 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
+      
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">IP Geolocation</h1>
+        <button 
+          onClick={handleLogout}
+          className="text-sm text-gray-500 hover:text-gray-800 transition"
+        >
+          Logout
+        </button>
+      </div>
+
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">IP Geolocation</h1>
-            <button className="text-sm text-gray-500 hover:text-gray-800">
-              Logout
-            </button>
-          </div>
-
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Search IP Address

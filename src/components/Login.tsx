@@ -1,11 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { login } from "../utils/login";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const authData = localStorage.getItem("geo_app_auth");
+    if (authData) {
+      try {
+        const parsed = JSON.parse(authData);
+        if (parsed.isAuthenticated) {
+          navigate("/", { replace: true });
+        }
+      } catch (e) {
+        console.log(e);
+        setError("Login failed. Please try again.");
+      }
+    }
+  }, [navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const data = await login(email, password);
+      localStorage.setItem(
+        "geo_app_auth",
+        JSON.stringify({
+          isAuthenticated: true,
+          token: data.token || data.accessToken || "authenticated",
+          email: email,
+        })
+      );
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.log(err);
+      setError("Login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -52,11 +92,18 @@ const Login = () => {
             />
           </div>
 
+          {error && (
+            <div className="text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 font-medium"
+            disabled={isLoading}
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Login
+            {isLoading ? "Logging in..." : "Login"}
           </button>
         </form>
       </div>
