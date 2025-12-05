@@ -69,6 +69,7 @@ const Home = () => {
   const handleHistoryClick = (ip: string) => {
     setSearchIp(ip);
     setError("");
+    handleSearch();
   };
 
   const handleCheckboxChange = (ip: string) => {
